@@ -62,7 +62,7 @@ background:#ddd;
 <!DOCTYPE html>
 <html>
 <head>
-<title>16 Piece Puzzle</title>
+<title>Puzzle Game</title>
 
 <style>
 body{
@@ -75,18 +75,23 @@ h1{
 margin-top:30px;
 }
 
+#timer{
+font-size:20px;
+margin-top:10px;
+}
+
 .grid{
 display:grid;
 grid-template-columns:80px 80px 80px 80px;
 gap:5px;
 justify-content:center;
-margin-top:40px;
+margin-top:30px;
 }
 
 .box{
 width:80px;
 height:80px;
-background:#2196F3;
+background:#ff5722;
 color:white;
 font-size:24px;
 display:flex;
@@ -101,11 +106,49 @@ cursor:pointer;
 <body>
 
 <h1>Puzzle Game</h1>
-<p>Numbers ko 1 se 16 tak sahi order me lagao</p>
+<div id="timer">Time: 0 sec</div>
 
 <div class="grid" id="puzzle"></div>
 
 <script>
-let numbers=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
 
-numbers
+let numbers=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+numbers.sort(()=>Math.random()-0.5);
+
+let puzzle=document.getElementById("puzzle");
+
+numbers.forEach(num=>{
+let div=document.createElement("div");
+div.className="box";
+div.innerHTML=num;
+puzzle.appendChild(div);
+});
+
+let boxes=document.querySelectorAll(".box");
+let first=null;
+
+boxes.forEach(box=>{
+box.onclick=function(){
+if(first==null){
+first=this;
+}else{
+let temp=this.innerHTML;
+this.innerHTML=first.innerHTML;
+first.innerHTML=temp;
+first=null;
+checkWin();
+}
+}
+});
+
+let time=0;
+setInterval(()=>{
+time++;
+document.getElementById("timer").innerHTML="Time: "+time+" sec";
+},1000);
+
+function checkWin(){
+let nums=[...boxes].map(b=>b.innerHTML);
+if(nums.join(",")=="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"){
+alert("Puzzle Solved in "+time+" seconds!");
+}
