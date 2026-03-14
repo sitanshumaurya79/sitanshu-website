@@ -1,156 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Advanced Jigsaw Puzzle</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #222;
-      color: #fff;
-    }
-    #puzzle-board {
-      width: 600px;
-      height: 400px;
-      margin: 20px auto;
-      border: 3px solid #fff;
-      display: flex;
-      flex-wrap: wrap;
-      position: relative;
-    }
-    .piece {
-      width: 150px;
-      height: 100px;
-      background-size: 600px 400px;
-      border: 1px solid #444;
-      cursor: grab;
-    }
-    #pieces-container {
-      margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .piece.dragging {
-      opacity: 0.5;
-    }
-    #stats {
-      margin-top: 15px;
-      font-size: 18px;
-    }
-    #win-message {
-      font-size: 24px;
-      color: lime;
-      margin-top: 20px;
-      display: none;
-    }
-  </style>
+<title>Image Puzzle Game</title>
+
+<style>
+body{
+font-family:Arial;
+text-align:center;
+background:#222;
+color:white;
+}
+
+#board{
+width:300px;
+margin:auto;
+display:grid;
+grid-template-columns:repeat(3,100px);
+gap:2px;
+margin-top:20px;
+}
+
+.tile{
+width:100px;
+height:100px;
+background-image:url("https://picsum.photos/300");
+background-size:300px 300px;
+cursor:pointer;
+}
+
+.empty{
+background:none;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+margin-top:10px;
+}
+</style>
 </head>
+
 <body>
-  <h1>🧩 Advanced Jigsaw Puzzle</h1>
-  <div id="stats">Moves: <span id="moves">0</span> | Time: <span id="time">0</span>s</div>
-  <div id="puzzle-board"></div>
-  <div id="pieces-container"></div>
-  <div id="win-message">🎉 Puzzle Completed! 🎉</div>
 
-  <script>
-    const board = document.getElementById("puzzle-board");
-    const container = document.getElementById("pieces-container");
-    const movesEl = document.getElementById("moves");
-    const timeEl = document.getElementById("time");
-    const winMessage = document.getElementById("win-message");
+<h2>Image Puzzle Game</h2>
 
-    let moves = 0;
-    let time = 0;
-    let timer;
+<p>Time: <span id="time">0</span> sec</p>
 
-    const imgSrc = "https://picsum.photos/600/400"; // Random image
-    const rows = 4, cols = 4; // 4x4 puzzle
-    const pieceWidth = 600 / cols;
-    const pieceHeight = 400 / rows;
+<button onclick="restart()">Restart</button>
 
-    // Start timer
-    function startTimer() {
-      timer = setInterval(() => {
-        time++;
-        timeEl.textContent = time;
-      }, 1000);
-    }
-    startTimer();
+<div id="board"></div>
 
-    // Create puzzle pieces
-    let positions = [];
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        positions.push({x: c * pieceWidth, y: r * pieceHeight});
-      }
-    }
+<script>
 
-    // Shuffle pieces
-    let shuffled = [...positions].sort(() => Math.random() - 0.5);
+let board=document.getElementById("board");
+let time=0;
+let timer;
 
-    shuffled.forEach((pos, index) => {
-      let piece = document.createElement("div");
-      piece.classList.add("piece");
-      piece.style.width = pieceWidth + "px";
-      piece.style.height = pieceHeight + "px";
-      piece.style.backgroundImage = `url(${imgSrc})`;
-      piece.style.backgroundPosition = `-${pos.x}px -${pos.y}px`;
-      piece.setAttribute("data-correct", positions.findIndex(p => p.x === pos.x && p.y === pos.y));
-      container.appendChild(piece);
+let tiles=[0,1,2,3,4,5,6,7,8];
 
-      piece.draggable = true;
+function startTimer(){
+timer=setInterval(()=>{
+time++;
+document.getElementById("time").innerText=time;
+},1000);
+}
 
-      piece.addEventListener("dragstart", e => {
-        piece.classList.add("dragging");
-        e.dataTransfer.setData("pieceId", piece.getAttribute("data-correct"));
-        e.dataTransfer.setData("bg", piece.style.backgroundPosition);
-      });
+function restart(){
 
-      piece.addEventListener("dragend", () => {
-        piece.classList.remove("dragging");
-      });
-    });
+clearInterval(timer);
 
-    // Drop zones
-    positions.forEach((pos, index) => {
-      let dropZone = document.createElement("div");
-      dropZone.classList.add("piece");
-      dropZone.style.width = pieceWidth + "px";
-      dropZone.style.height = pieceHeight + "px";
-      dropZone.style.background = "#333";
-      dropZone.setAttribute("data-pos", index);
+time=0;
 
-      dropZone.addEventListener("dragover", e => e.preventDefault());
+tiles=[0,1,2,3,4,5,6,7,8];
 
-      dropZone.addEventListener("drop", e => {
-        let pieceId = e.dataTransfer.getData("pieceId");
-        let bg = e.dataTransfer.getData("bg");
-        dropZone.style.backgroundImage = `url(${imgSrc})`;
-        dropZone.style.backgroundPosition = bg;
-        dropZone.setAttribute("data-filled", pieceId);
-        moves++;
-        movesEl.textContent = moves;
-        checkWin();
-      });
+tiles.sort(()=>Math.random()-0.5);
 
-      board.appendChild(dropZone);
-    });
+draw();
 
-    function checkWin() {
-      let filled = board.querySelectorAll("[data-filled]");
-      if (filled.length === positions.length) {
-        let correct = true;
-        filled.forEach(zone => {
-          if (zone.getAttribute("data-pos") !== zone.getAttribute("data-filled")) {
-            correct = false;
-          }
-        });
-        if (correct) {
-          clearInterval(timer);
-          winMessage.style.display = "block";
-        }
-      }
-    }
-            </script>
+startTimer();
+
+}
+
+function draw(){
+
+board.innerHTML="";
+
+tiles.forEach((num,i)=>{
+
+let div=document.createElement("div");
+
+if(num===8){
+div.className="tile empty";
+}else{
+
+div.className="tile";
+
+let x=(num%3)*-100;
+let y=Math.floor(num/3)*-100;
+
+div.style.backgroundPosition=x+"px "+y+"px";
+
+}
+
+div.onclick=()=>move(i);
+
+board.appendChild(div);
+
+});
+
+}
+
+function move(i){
+
+let emptyIndex=tiles.indexOf(8);
+
+let valid=[i-1,i+1,i-3,i+3];
+
+if(valid.includes(emptyIndex)){
+
+[tiles[i],tiles[emptyIndex]]=[tiles[emptyIndex],tiles[i]];
+
+draw();
+
+checkWin();
+
+}
+
+}
+
+function checkWin(){
+
+for(let i=0;i<tiles.length;i++){
+
+if(tiles[i]!==i) return;
+
+}
+
+clearInterval(timer);
+
+alert("Puzzle Solved in "+time+" seconds!");
+
+}
+
+restart();
+
+</script>
+
+</body>
+</html>
