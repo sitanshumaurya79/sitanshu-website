@@ -1,134 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Mobile Car Game</title>
-
-<style>
-body{
-margin:0;
-background:#111;
-overflow:hidden;
-font-family:Arial;
-}
-
-#game{
-width:360px;
-height:600px;
-background:#333;
-margin:auto;
-position:relative;
-overflow:hidden;
-border:4px solid white;
-}
-
-.car{
-width:60px;
-height:100px;
-background:red;
-position:absolute;
-bottom:20px;
-left:150px;
-border-radius:10px;
-}
-
-.enemy{
-width:60px;
-height:100px;
-background:yellow;
-position:absolute;
-top:-120px;
-border-radius:10px;
-}
-
-#score{
-color:white;
-text-align:center;
-font-size:22px;
-margin:10px;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Jigsaw Puzzle Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+    }
+    #puzzle-board {
+      width: 600px;
+      height: 400px;
+      margin: 20px auto;
+      border: 2px solid #333;
+      display: flex;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .piece {
+      width: 200px;
+      height: 200px;
+      background-size: 600px 400px;
+      border: 1px solid #999;
+      cursor: grab;
+    }
+    #pieces-container {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .piece.dragging {
+      opacity: 0.5;
+    }
+  </style>
 </head>
-
 <body>
+  <h1>🎨 Jigsaw Puzzle Game</h1>
+  <div id="puzzle-board"></div>
+  <div id="pieces-container"></div>
 
-<div id="score">Score: 0</div>
+  <script>
+    const board = document.getElementById("puzzle-board");
+    const container = document.getElementById("pieces-container");
 
-<div id="game">
-<div id="player" class="car"></div>
-</div>
+    // Puzzle image
+    const imgSrc = "https://picsum.photos/600/400"; // Random image
 
-<script>
+    // Create puzzle pieces
+    let positions = [
+      {x:0,y:0}, {x:200,y:0}, {x:400,y:0},
+      {x:0,y:200}, {x:200,y:200}, {x:400,y:200}
+    ];
 
-let game=document.getElementById("game");
-let player=document.getElementById("player");
-let score=0;
+    positions.forEach((pos, index) => {
+      let piece = document.createElement("div");
+      piece.classList.add("piece");
+      piece.style.backgroundImage = `url(${imgSrc})`;
+      piece.style.backgroundPosition = `-${pos.x}px -${pos.y}px`;
+      piece.setAttribute("data-pos", index);
+      container.appendChild(piece);
 
-function moveLeft(){
-let left=player.offsetLeft;
-if(left>0){
-player.style.left=(left-40)+"px";
-}
-}
+      piece.draggable = true;
 
-function moveRight(){
-let left=player.offsetLeft;
-if(left<300){
-player.style.left=(left+40)+"px";
-}
-}
+      piece.addEventListener("dragstart", e => {
+        piece.classList.add("dragging");
+        e.dataTransfer.setData("pos", index);
+      });
 
-document.addEventListener("touchstart",function(e){
-let x=e.touches[0].clientX;
+      piece.addEventListener("dragend", () => {
+        piece.classList.remove("dragging");
+      });
+    });
 
-if(x < window.innerWidth/2){
-moveLeft();
-}else{
-moveRight();
-}
-});
+    // Drop zones
+    positions.forEach((pos, index) => {
+      let dropZone = document.createElement("div");
+      dropZone.classList.add("piece");
+      dropZone.style.background = "#ddd";
+      dropZone.setAttribute("data-pos", index);
 
-document.addEventListener("keydown",function(e){
-if(e.key=="ArrowLeft") moveLeft();
-if(e.key=="ArrowRight") moveRight();
-});
+      dropZone.addEventListener("dragover", e => e.preventDefault());
 
-function createEnemy(){
+      dropZone.addEventListener("drop", e => {
+        let draggedPos = e.dataTransfer.getData("pos");
+        let draggedPiece = container.querySelector(`[data-pos='${draggedPos}']`);
+        dropZone.style.backgroundImage = draggedPiece.style.backgroundImage;
+        dropZone.style.backgroundPosition = draggedPiece.style.backgroundPosition;
+      });
 
-let enemy=document.createElement("div");
-enemy.className="enemy";
-
-enemy.style.left=Math.floor(Math.random()*300)+"px";
-
-game.appendChild(enemy);
-
-let move=setInterval(()=>{
-
-enemy.style.top=(enemy.offsetTop+7)+"px";
-
-if(enemy.offsetTop>600){
-enemy.remove();
-score++;
-document.getElementById("score").innerHTML="Score: "+score;
-clearInterval(move);
-}
-
-if(
-enemy.offsetTop>450 &&
-enemy.offsetLeft==player.offsetLeft
-){
-alert("Game Over! Score: "+score);
-location.reload();
-}
-
-},30);
-
-}
-
-setInterval(createEnemy,1400);
-
-</script>
-
+      board.appendChild(dropZone);
+    });
+  </script>
 </body>
 </html>
-<img id="player" src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Red_car_top_view.png" style="width:60px;position:absolute;bottom:20px;left:150px;">
-enemy.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Blue_car_top_view.png" style="width:60px;">';
