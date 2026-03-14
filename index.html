@@ -2,27 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Jigsaw Puzzle Game</title>
+  <title>Advanced Jigsaw Puzzle</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      background: #f0f0f0;
+      background: #222;
+      color: #fff;
     }
     #puzzle-board {
       width: 600px;
       height: 400px;
       margin: 20px auto;
-      border: 2px solid #333;
+      border: 3px solid #fff;
       display: flex;
       flex-wrap: wrap;
       position: relative;
     }
     .piece {
-      width: 200px;
-      height: 200px;
+      width: 150px;
+      height: 100px;
       background-size: 600px 400px;
-      border: 1px solid #999;
+      border: 1px solid #444;
       cursor: grab;
     }
     #pieces-container {
@@ -34,39 +35,77 @@
     .piece.dragging {
       opacity: 0.5;
     }
+    #stats {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+    #win-message {
+      font-size: 24px;
+      color: lime;
+      margin-top: 20px;
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>🎨 Jigsaw Puzzle Game</h1>
+  <h1>🧩 Advanced Jigsaw Puzzle</h1>
+  <div id="stats">Moves: <span id="moves">0</span> | Time: <span id="time">0</span>s</div>
   <div id="puzzle-board"></div>
   <div id="pieces-container"></div>
+  <div id="win-message">🎉 Puzzle Completed! 🎉</div>
 
   <script>
     const board = document.getElementById("puzzle-board");
     const container = document.getElementById("pieces-container");
+    const movesEl = document.getElementById("moves");
+    const timeEl = document.getElementById("time");
+    const winMessage = document.getElementById("win-message");
 
-    // Puzzle image
+    let moves = 0;
+    let time = 0;
+    let timer;
+
     const imgSrc = "https://picsum.photos/600/400"; // Random image
+    const rows = 4, cols = 4; // 4x4 puzzle
+    const pieceWidth = 600 / cols;
+    const pieceHeight = 400 / rows;
+
+    // Start timer
+    function startTimer() {
+      timer = setInterval(() => {
+        time++;
+        timeEl.textContent = time;
+      }, 1000);
+    }
+    startTimer();
 
     // Create puzzle pieces
-    let positions = [
-      {x:0,y:0}, {x:200,y:0}, {x:400,y:0},
-      {x:0,y:200}, {x:200,y:200}, {x:400,y:200}
-    ];
+    let positions = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        positions.push({x: c * pieceWidth, y: r * pieceHeight});
+      }
+    }
 
-    positions.forEach((pos, index) => {
+    // Shuffle pieces
+    let shuffled = [...positions].sort(() => Math.random() - 0.5);
+
+    shuffled.forEach((pos, index) => {
       let piece = document.createElement("div");
       piece.classList.add("piece");
+      piece.style.width = pieceWidth + "px";
+      piece.style.height = pieceHeight + "px";
       piece.style.backgroundImage = `url(${imgSrc})`;
       piece.style.backgroundPosition = `-${pos.x}px -${pos.y}px`;
-      piece.setAttribute("data-pos", index);
+      piece.setAttribute("data-correct", positions.findIndex(p => p.x === pos.x && p.y === pos.y));
       container.appendChild(piece);
 
       piece.draggable = true;
 
       piece.addEventListener("dragstart", e => {
         piece.classList.add("dragging");
-        e.dataTransfer.setData("pos", index);
+        e.dataTransfer.setData("pieceId", piece.getAttribute("data-correct"));
+        e.dataTransfer.setData("bg", piece.style.backgroundPosition);
       });
 
       piece.addEventListener("dragend", () => {
@@ -78,20 +117,40 @@
     positions.forEach((pos, index) => {
       let dropZone = document.createElement("div");
       dropZone.classList.add("piece");
-      dropZone.style.background = "#ddd";
+      dropZone.style.width = pieceWidth + "px";
+      dropZone.style.height = pieceHeight + "px";
+      dropZone.style.background = "#333";
       dropZone.setAttribute("data-pos", index);
 
       dropZone.addEventListener("dragover", e => e.preventDefault());
 
       dropZone.addEventListener("drop", e => {
-        let draggedPos = e.dataTransfer.getData("pos");
-        let draggedPiece = container.querySelector(`[data-pos='${draggedPos}']`);
-        dropZone.style.backgroundImage = draggedPiece.style.backgroundImage;
-        dropZone.style.backgroundPosition = draggedPiece.style.backgroundPosition;
+        let pieceId = e.dataTransfer.getData("pieceId");
+        let bg = e.dataTransfer.getData("bg");
+        dropZone.style.backgroundImage = `url(${imgSrc})`;
+        dropZone.style.backgroundPosition = bg;
+        dropZone.setAttribute("data-filled", pieceId);
+        moves++;
+        movesEl.textContent = moves;
+        checkWin();
       });
 
       board.appendChild(dropZone);
     });
-  </script>
-</body>
-</html>
+
+    function checkWin() {
+      let filled = board.querySelectorAll("[data-filled]");
+      if (filled.length === positions.length) {
+        let correct = true;
+        filled.forEach(zone => {
+          if (zone.getAttribute("data-pos") !== zone.getAttribute("data-filled")) {
+            correct = false;
+          }
+        });
+        if (correct) {
+          clearInterval(timer);
+          winMessage.style.display = "block";
+        }
+      }
+    }
+            </script>
