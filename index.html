@@ -1,115 +1,144 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Shooting Game</title>
+<title>Puzzle Game</title>
+
 <style>
 body{
-margin:0;
-background:black;
-color:white;
-text-align:center;
 font-family:Arial;
+text-align:center;
+background:#222;
+color:white;
 }
 
-canvas{
-background:#111;
-display:block;
+#board{
 margin:auto;
+margin-top:20px;
+display:grid;
+gap:4px;
+}
+
+.tile{
+background:#4CAF50;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+cursor:pointer;
+border-radius:6px;
+color:white;
+}
+
+.empty{
+background:#222;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+margin:5px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Shooting Game</h2>
-<p>Score: <span id="score">0</span></p>
+<h2>Puzzle Game</h2>
 
-<canvas id="game" width="400" height="600"></canvas>
+<button onclick="startGame(3)">Easy</button>
+<button onclick="startGame(4)">Medium</button>
+<button onclick="startGame(5)">Hard</button>
+
+<div id="board"></div>
 
 <script>
 
-let canvas=document.getElementById("game")
-let ctx=canvas.getContext("2d")
+let board=document.getElementById("board");
+let size=3;
+let numbers=[];
 
-let player={x:180,y:550,w:40,h:40}
-let bullets=[]
-let enemies=[]
-let score=0
+function startGame(level){
 
-function drawPlayer(){
-ctx.fillStyle="lime"
-ctx.fillRect(player.x,player.y,player.w,player.h)
+size=level;
+
+numbers=[];
+
+for(let i=1;i<size*size;i++){
+numbers.push(i);
 }
 
-function drawBullets(){
-ctx.fillStyle="yellow"
-bullets.forEach(b=>{
-ctx.fillRect(b.x,b.y,5,10)
-b.y-=7
-})
+numbers.push("");
+
+numbers.sort(()=>Math.random()-0.5);
+
+board.style.gridTemplateColumns="repeat("+size+",80px)";
+
+draw();
+
 }
 
-function drawEnemies(){
-ctx.fillStyle="red"
-enemies.forEach(e=>{
-ctx.fillRect(e.x,e.y,40,40)
-e.y+=2
-})
+function draw(){
+
+board.innerHTML="";
+
+numbers.forEach((num,i)=>{
+
+let div=document.createElement("div");
+
+div.className="tile";
+
+div.style.width="80px";
+div.style.height="80px";
+
+if(num===""){
+div.classList.add("empty");
+}else{
+div.innerText=num;
 }
 
-function spawnEnemy(){
-enemies.push({
-x:Math.random()*360,
-y:-40
-})
+div.onclick=()=>move(i);
+
+board.appendChild(div);
+
+});
+
 }
 
-function collision(a,b){
-return a.x<b.x+40 &&
-a.x+40>b.x &&
-a.y<b.y+40 &&
-a.y+40>b.y
+function move(i){
+
+let emptyIndex=numbers.indexOf("");
+
+let row=Math.floor(i/size);
+let col=i%size;
+
+let emptyRow=Math.floor(emptyIndex/size);
+let emptyCol=emptyIndex%size;
+
+let valid=
+(Math.abs(row-emptyRow)==1 && col==emptyCol) ||
+(Math.abs(col-emptyCol)==1 && row==emptyRow);
+
+if(valid){
+
+[numbers[i],numbers[emptyIndex]]=[numbers[emptyIndex],numbers[i]];
+
+draw();
+
+checkWin();
+
 }
 
-function update(){
-
-ctx.clearRect(0,0,400,600)
-
-drawPlayer()
-drawBullets()
-drawEnemies()
-
-bullets.forEach((b,bi)=>{
-enemies.forEach((e,ei)=>{
-
-if(collision({x:b.x,y:b.y,w:5,h:10},e)){
-bullets.splice(bi,1)
-enemies.splice(ei,1)
-score++
-document.getElementById("score").innerText=score
 }
 
-})
-})
+function checkWin(){
 
-requestAnimationFrame(update)
+for(let i=0;i<numbers.length-1;i++){
+if(numbers[i]!==i+1) return;
 }
 
-document.addEventListener("click",()=>{
-bullets.push({
-x:player.x+18,
-y:player.y
-})
-})
+alert("Puzzle Solved!");
 
-document.addEventListener("mousemove",(e)=>{
-let rect=canvas.getBoundingClientRect()
-player.x=e.clientX-rect.left-20
-})
-
-setInterval(spawnEnemy,1500)
-
-update()
+}
 
 </script>
 
