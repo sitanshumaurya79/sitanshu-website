@@ -12,20 +12,21 @@ color:white;
 }
 
 #board{
-width:350px;
+width:450px;
 margin:auto;
 display:grid;
-grid-template-columns:repeat(5,70px);
-gap:2px;
+grid-template-columns:repeat(5,90px);
+gap:4px;
 margin-top:20px;
 }
 
 .tile{
-width:70px;
-height:70px;
-background-image:url("https://picsum.photos/350");
-background-size:350px 350px;
+width:90px;
+height:90px;
+background-image:url("https://picsum.photos/450");
+background-size:450px 450px;
 cursor:pointer;
+border-radius:6px;
 }
 
 .empty{
@@ -38,11 +39,12 @@ font-size:16px;
 margin-top:10px;
 }
 </style>
+
 </head>
 
 <body>
 
-<h2>5x5 Image Puzzle</h2>
+<h2>5×5 Image Puzzle</h2>
 
 <p>Time: <span id="time">0</span> sec</p>
 
@@ -92,15 +94,13 @@ tiles.forEach((num,i)=>{
 let div=document.createElement("div");
 
 if(num===size*size-1){
-
 div.className="tile empty";
-
 }else{
 
 div.className="tile";
 
-let x=(num%size)*-70;
-let y=Math.floor(num/size)*-70;
+let x=(num%size)*-90;
+let y=Math.floor(num/size)*-90;
 
 div.style.backgroundPosition=x+"px "+y+"px";
 
@@ -142,9 +142,7 @@ checkWin();
 function checkWin(){
 
 for(let i=0;i<tiles.length;i++){
-
 if(tiles[i]!==i) return;
-
 }
 
 clearInterval(timer);
