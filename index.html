@@ -1,103 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>10 Mini Games</title>
-
+<title>Shooting Game</title>
 <style>
 body{
-font-family:Arial;
-text-align:center;
-background:#222;
+margin:0;
+background:black;
 color:white;
+text-align:center;
+font-family:Arial;
 }
 
-button{
-padding:10px 15px;
-margin:5px;
-font-size:16px;
-cursor:pointer;
-}
-
-#game{
-margin-top:20px;
-font-size:20px;
+canvas{
+background:#111;
+display:block;
+margin:auto;
 }
 </style>
 </head>
 
 <body>
 
-<h1>My 10 Mini Games</h1>
+<h2>Shooting Game</h2>
+<p>Score: <span id="score">0</span></p>
 
-<button onclick="guessGame()">1 Guess Number</button>
-<button onclick="diceGame()">2 Dice Roll</button>
-<button onclick="coinGame()">3 Coin Toss</button>
-<button onclick="tapGame()">4 Tap Speed</button>
-<button onclick="mathGame()">5 Math Quiz</button>
-<button onclick="colorGame()">6 Color Guess</button>
-<button onclick="randomGame()">7 Random Number</button>
-<button onclick="yesNoGame()">8 Yes / No</button>
-<button onclick="luckyGame()">9 Lucky Number</button>
-<button onclick="reactionGame()">10 Reaction Test</button>
-
-<div id="game"></div>
+<canvas id="game" width="400" height="600"></canvas>
 
 <script>
 
-function guessGame(){
-let n=Math.floor(Math.random()*10)+1
-let g=prompt("1 se 10 tak number guess karo")
-alert(g==n?"Correct!":"Wrong! Number tha "+n)
+let canvas=document.getElementById("game")
+let ctx=canvas.getContext("2d")
+
+let player={x:180,y:550,w:40,h:40}
+let bullets=[]
+let enemies=[]
+let score=0
+
+function drawPlayer(){
+ctx.fillStyle="lime"
+ctx.fillRect(player.x,player.y,player.w,player.h)
 }
 
-function diceGame(){
-let d=Math.floor(Math.random()*6)+1
-alert("Dice number: "+d)
+function drawBullets(){
+ctx.fillStyle="yellow"
+bullets.forEach(b=>{
+ctx.fillRect(b.x,b.y,5,10)
+b.y-=7
+})
 }
 
-function coinGame(){
-alert(Math.random()<0.5?"Head":"Tail")
+function drawEnemies(){
+ctx.fillStyle="red"
+enemies.forEach(e=>{
+ctx.fillRect(e.x,e.y,40,40)
+e.y+=2
+})
 }
 
-function tapGame(){
-let start=Date.now()
-alert("OK dabao aur turant fir OK dabao")
-let end=Date.now()
-alert("Time: "+(end-start)+" ms")
+function spawnEnemy(){
+enemies.push({
+x:Math.random()*360,
+y:-40
+})
 }
 
-function mathGame(){
-let a=Math.floor(Math.random()*10)
-let b=Math.floor(Math.random()*10)
-let g=prompt(a+" + "+b+" = ?")
-alert(g==(a+b)?"Correct":"Wrong")
+function collision(a,b){
+return a.x<b.x+40 &&
+a.x+40>b.x &&
+a.y<b.y+40 &&
+a.y+40>b.y
 }
 
-function colorGame(){
-let colors=["Red","Blue","Green","Yellow"]
-let c=colors[Math.floor(Math.random()*4)]
-let g=prompt("Color guess karo: Red Blue Green Yellow")
-alert(g==c?"Correct":"Color tha "+c)
+function update(){
+
+ctx.clearRect(0,0,400,600)
+
+drawPlayer()
+drawBullets()
+drawEnemies()
+
+bullets.forEach((b,bi)=>{
+enemies.forEach((e,ei)=>{
+
+if(collision({x:b.x,y:b.y,w:5,h:10},e)){
+bullets.splice(bi,1)
+enemies.splice(ei,1)
+score++
+document.getElementById("score").innerText=score
 }
 
-function randomGame(){
-alert("Random number: "+Math.floor(Math.random()*100))
+})
+})
+
+requestAnimationFrame(update)
 }
 
-function yesNoGame(){
-alert(Math.random()<0.5?"YES":"NO")
-}
+document.addEventListener("click",()=>{
+bullets.push({
+x:player.x+18,
+y:player.y
+})
+})
 
-function luckyGame(){
-alert("Lucky number: "+Math.floor(Math.random()*9)+1)
-}
+document.addEventListener("mousemove",(e)=>{
+let rect=canvas.getBoundingClientRect()
+player.x=e.clientX-rect.left-20
+})
 
-function reactionGame(){
-let start=Date.now()
-alert("OK dabao")
-let end=Date.now()
-alert("Reaction time "+(end-start)+" ms")
-}
+setInterval(spawnEnemy,1500)
+
+update()
 
 </script>
 
