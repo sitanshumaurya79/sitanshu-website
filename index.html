@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Puzzle Game</title>
+<title>10 Mini Games</title>
 
 <style>
 body{
@@ -11,133 +11,92 @@ background:#222;
 color:white;
 }
 
-#board{
-margin:auto;
-margin-top:20px;
-display:grid;
-gap:4px;
-}
-
-.tile{
-background:#4CAF50;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:24px;
-cursor:pointer;
-border-radius:6px;
-color:white;
-}
-
-.empty{
-background:#222;
-}
-
 button{
-padding:10px 20px;
-font-size:16px;
+padding:10px 15px;
 margin:5px;
+font-size:16px;
+cursor:pointer;
+}
+
+#game{
+margin-top:20px;
+font-size:20px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Puzzle Game</h2>
+<h1>My 10 Mini Games</h1>
 
-<button onclick="startGame(3)">Easy</button>
-<button onclick="startGame(4)">Medium</button>
-<button onclick="startGame(5)">Hard</button>
+<button onclick="guessGame()">1 Guess Number</button>
+<button onclick="diceGame()">2 Dice Roll</button>
+<button onclick="coinGame()">3 Coin Toss</button>
+<button onclick="tapGame()">4 Tap Speed</button>
+<button onclick="mathGame()">5 Math Quiz</button>
+<button onclick="colorGame()">6 Color Guess</button>
+<button onclick="randomGame()">7 Random Number</button>
+<button onclick="yesNoGame()">8 Yes / No</button>
+<button onclick="luckyGame()">9 Lucky Number</button>
+<button onclick="reactionGame()">10 Reaction Test</button>
 
-<div id="board"></div>
+<div id="game"></div>
 
 <script>
 
-let board=document.getElementById("board");
-let size=3;
-let numbers=[];
-
-function startGame(level){
-
-size=level;
-
-numbers=[];
-
-for(let i=1;i<size*size;i++){
-numbers.push(i);
+function guessGame(){
+let n=Math.floor(Math.random()*10)+1
+let g=prompt("1 se 10 tak number guess karo")
+alert(g==n?"Correct!":"Wrong! Number tha "+n)
 }
 
-numbers.push("");
-
-numbers.sort(()=>Math.random()-0.5);
-
-board.style.gridTemplateColumns="repeat("+size+",80px)";
-
-draw();
-
+function diceGame(){
+let d=Math.floor(Math.random()*6)+1
+alert("Dice number: "+d)
 }
 
-function draw(){
-
-board.innerHTML="";
-
-numbers.forEach((num,i)=>{
-
-let div=document.createElement("div");
-
-div.className="tile";
-
-div.style.width="80px";
-div.style.height="80px";
-
-if(num===""){
-div.classList.add("empty");
-}else{
-div.innerText=num;
+function coinGame(){
+alert(Math.random()<0.5?"Head":"Tail")
 }
 
-div.onclick=()=>move(i);
-
-board.appendChild(div);
-
-});
-
+function tapGame(){
+let start=Date.now()
+alert("OK dabao aur turant fir OK dabao")
+let end=Date.now()
+alert("Time: "+(end-start)+" ms")
 }
 
-function move(i){
-
-let emptyIndex=numbers.indexOf("");
-
-let row=Math.floor(i/size);
-let col=i%size;
-
-let emptyRow=Math.floor(emptyIndex/size);
-let emptyCol=emptyIndex%size;
-
-let valid=
-(Math.abs(row-emptyRow)==1 && col==emptyCol) ||
-(Math.abs(col-emptyCol)==1 && row==emptyRow);
-
-if(valid){
-
-[numbers[i],numbers[emptyIndex]]=[numbers[emptyIndex],numbers[i]];
-
-draw();
-
-checkWin();
-
+function mathGame(){
+let a=Math.floor(Math.random()*10)
+let b=Math.floor(Math.random()*10)
+let g=prompt(a+" + "+b+" = ?")
+alert(g==(a+b)?"Correct":"Wrong")
 }
 
+function colorGame(){
+let colors=["Red","Blue","Green","Yellow"]
+let c=colors[Math.floor(Math.random()*4)]
+let g=prompt("Color guess karo: Red Blue Green Yellow")
+alert(g==c?"Correct":"Color tha "+c)
 }
 
-function checkWin(){
-
-for(let i=0;i<numbers.length-1;i++){
-if(numbers[i]!==i+1) return;
+function randomGame(){
+alert("Random number: "+Math.floor(Math.random()*100))
 }
 
-alert("Puzzle Solved!");
+function yesNoGame(){
+alert(Math.random()<0.5?"YES":"NO")
+}
 
+function luckyGame(){
+alert("Lucky number: "+Math.floor(Math.random()*9)+1)
+}
+
+function reactionGame(){
+let start=Date.now()
+alert("OK dabao")
+let end=Date.now()
+alert("Reaction time "+(end-start)+" ms")
 }
 
 </script>
