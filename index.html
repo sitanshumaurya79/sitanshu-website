@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>5x5 Puzzle Game</title>
+<title>Puzzle Game</title>
 
 <style>
 body{
@@ -12,76 +12,68 @@ color:white;
 }
 
 #board{
-width:450px;
 margin:auto;
-display:grid;
-grid-template-columns:repeat(5,90px);
-gap:4px;
 margin-top:20px;
+display:grid;
+gap:4px;
 }
 
 .tile{
-width:90px;
-height:90px;
-background-image:url("https://picsum.photos/450");
-background-size:450px 450px;
+background:#4CAF50;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
 cursor:pointer;
 border-radius:6px;
+color:white;
 }
 
 .empty{
-background:none;
+background:#222;
 }
 
 button{
 padding:10px 20px;
 font-size:16px;
-margin-top:10px;
+margin:5px;
 }
 </style>
-
 </head>
 
 <body>
 
-<h2>5×5 Image Puzzle</h2>
+<h2>Puzzle Game</h2>
 
-<p>Time: <span id="time">0</span> sec</p>
-
-<button onclick="restart()">Restart</button>
+<button onclick="startGame(3)">Easy</button>
+<button onclick="startGame(4)">Medium</button>
+<button onclick="startGame(5)">Hard</button>
 
 <div id="board"></div>
 
 <script>
 
 let board=document.getElementById("board");
-let size=5;
-let tiles=[];
-let time=0;
-let timer;
+let size=3;
+let numbers=[];
 
-function startTimer(){
-timer=setInterval(()=>{
-time++;
-document.getElementById("time").innerText=time;
-},1000);
+function startGame(level){
+
+size=level;
+
+numbers=[];
+
+for(let i=1;i<size*size;i++){
+numbers.push(i);
 }
 
-function restart(){
+numbers.push("");
 
-clearInterval(timer);
-time=0;
+numbers.sort(()=>Math.random()-0.5);
 
-tiles=[];
-
-for(let i=0;i<size*size;i++){
-tiles.push(i);
-}
-
-tiles.sort(()=>Math.random()-0.5);
+board.style.gridTemplateColumns="repeat("+size+",80px)";
 
 draw();
-startTimer();
 
 }
 
@@ -89,21 +81,19 @@ function draw(){
 
 board.innerHTML="";
 
-tiles.forEach((num,i)=>{
+numbers.forEach((num,i)=>{
 
 let div=document.createElement("div");
 
-if(num===size*size-1){
-div.className="tile empty";
-}else{
-
 div.className="tile";
 
-let x=(num%size)*-90;
-let y=Math.floor(num/size)*-90;
+div.style.width="80px";
+div.style.height="80px";
 
-div.style.backgroundPosition=x+"px "+y+"px";
-
+if(num===""){
+div.classList.add("empty");
+}else{
+div.innerText=num;
 }
 
 div.onclick=()=>move(i);
@@ -116,7 +106,7 @@ board.appendChild(div);
 
 function move(i){
 
-let emptyIndex=tiles.indexOf(size*size-1);
+let emptyIndex=numbers.indexOf("");
 
 let row=Math.floor(i/size);
 let col=i%size;
@@ -130,9 +120,10 @@ let valid=
 
 if(valid){
 
-[tiles[i],tiles[emptyIndex]]=[tiles[emptyIndex],tiles[i]];
+[numbers[i],numbers[emptyIndex]]=[numbers[emptyIndex],numbers[i]];
 
 draw();
+
 checkWin();
 
 }
@@ -141,31 +132,15 @@ checkWin();
 
 function checkWin(){
 
-for(let i=0;i<tiles.length;i++){
-if(tiles[i]!==i) return;
+for(let i=0;i<numbers.length-1;i++){
+if(numbers[i]!==i+1) return;
 }
 
-clearInterval(timer);
-
-alert("Puzzle Solved in "+time+" seconds!");
+alert("Puzzle Solved!");
 
 }
-
-restart();
 
 </script>
 
 </body>
 </html>
-<button onclick="startGame(3)">Easy</button>
-<button onclick="startGame(4)">Medium</button>
-<button onclick="startGame(5)">Hard</button>
-
-<script>
-let size = 3;
-
-function startGame(level){
-  size = level;
-  restart();
-}
-</script>
