@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Image Puzzle Game</title>
+<title>5x5 Puzzle Game</title>
 
 <style>
 body{
@@ -12,19 +12,19 @@ color:white;
 }
 
 #board{
-width:300px;
+width:350px;
 margin:auto;
 display:grid;
-grid-template-columns:repeat(3,100px);
+grid-template-columns:repeat(5,70px);
 gap:2px;
 margin-top:20px;
 }
 
 .tile{
-width:100px;
-height:100px;
-background-image:url("https://picsum.photos/300");
-background-size:300px 300px;
+width:70px;
+height:70px;
+background-image:url("https://picsum.photos/350");
+background-size:350px 350px;
 cursor:pointer;
 }
 
@@ -42,7 +42,7 @@ margin-top:10px;
 
 <body>
 
-<h2>Image Puzzle Game</h2>
+<h2>5x5 Image Puzzle</h2>
 
 <p>Time: <span id="time">0</span> sec</p>
 
@@ -53,10 +53,10 @@ margin-top:10px;
 <script>
 
 let board=document.getElementById("board");
+let size=5;
+let tiles=[];
 let time=0;
 let timer;
-
-let tiles=[0,1,2,3,4,5,6,7,8];
 
 function startTimer(){
 timer=setInterval(()=>{
@@ -68,15 +68,17 @@ document.getElementById("time").innerText=time;
 function restart(){
 
 clearInterval(timer);
-
 time=0;
 
-tiles=[0,1,2,3,4,5,6,7,8];
+tiles=[];
+
+for(let i=0;i<size*size;i++){
+tiles.push(i);
+}
 
 tiles.sort(()=>Math.random()-0.5);
 
 draw();
-
 startTimer();
 
 }
@@ -89,14 +91,16 @@ tiles.forEach((num,i)=>{
 
 let div=document.createElement("div");
 
-if(num===8){
+if(num===size*size-1){
+
 div.className="tile empty";
+
 }else{
 
 div.className="tile";
 
-let x=(num%3)*-100;
-let y=Math.floor(num/3)*-100;
+let x=(num%size)*-70;
+let y=Math.floor(num/size)*-70;
 
 div.style.backgroundPosition=x+"px "+y+"px";
 
@@ -112,16 +116,23 @@ board.appendChild(div);
 
 function move(i){
 
-let emptyIndex=tiles.indexOf(8);
+let emptyIndex=tiles.indexOf(size*size-1);
 
-let valid=[i-1,i+1,i-3,i+3];
+let row=Math.floor(i/size);
+let col=i%size;
 
-if(valid.includes(emptyIndex)){
+let emptyRow=Math.floor(emptyIndex/size);
+let emptyCol=emptyIndex%size;
+
+let valid=
+(Math.abs(row-emptyRow)==1 && col==emptyCol) ||
+(Math.abs(col-emptyCol)==1 && row==emptyRow);
+
+if(valid){
 
 [tiles[i],tiles[emptyIndex]]=[tiles[emptyIndex],tiles[i]];
 
 draw();
-
 checkWin();
 
 }
